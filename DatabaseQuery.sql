@@ -271,4 +271,9 @@ INSERT INTO LectureAtendee(AmountPayed,AtendeeId,LectureId) VALUES
 (3,34,13),
 (2,8,11)
 
-
+SELECT [Language],[Date]
+FROM Courses a
+JOIN TeacherCourse b ON a.Id = b.CourseId
+JOIN Lectures c ON b.Id = c.TeacherCourseId
+WHERE [Date] BETWEEN '2020-12-16' AND '2021-10-10'
+GROUP BY [Language]

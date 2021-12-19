@@ -380,7 +380,64 @@ SELECT CourseLanguage,DateOfLecture
 FROM Courses a
 JOIN TeacherCourse b ON a.Id = b.CourseId
 JOIN Lectures c ON b.Id = c.TeacherCourseId
-WHERE DateOfLecture BETWEEN '2020-12-16' AND '2021-10-10'
+WHERE DATEDIFF(dd, '2020-12-16', DateOfLecture) < 10
 ORDER BY CourseLanguage
 
-SELECT COUNT(*) FROM Lectures
+SELECT 
+	DateOfLecture, 
+	CourseLanguage,
+	DifficultyLevel,
+	(SELECT CASE 
+		WHEN Age <= 17 THEN  N'Uèenik'
+		WHEN Age > 17 AND Age <= 27 THEN 'Student'
+		WHEN Age > 27 AND Age <= 27 THEN 'Radnik'
+		WHEN Age > 67 THEN 'Umirovljenik'
+	END) AS AgeGroup
+FROM Atendees a
+JOIN LectureAtendee b ON a.Id = b.AtendeeId
+JOIN Lectures c ON b.LectureId = c.Id
+JOIN TeacherCourse d ON c.TeacherCourseId = d.Id
+JOIN Courses e ON e.Id = d.CourseId
+WHERE DATEDIFF(dd, '2020-12-16', DateOfLecture) < 100
+GROUP BY CourseLanguage, DifficultyLevel, AgeGroup
+	
+
+SELECT DateOfLecture, TeacherName, TeacherSurname
+FROM Teachers a
+JOIN TeacherCourse b ON a.Id = b.TeacherId
+JOIN Lectures c ON b.Id = c.TeacherCourseId
+WHERE DATEDIFF(dd, '2020-12-16', DateOfLecture) < 100
+GROUP BY a.Id
+
+SELECT *
+FROM Atendees a
+JOIN LectureAtendee b ON a.Id = b.AtendeeId
+JOIN Lectures c ON b.LectureId = c.Id
+JOIN TeacherCourse d ON c.TeacherCourseId = d.Id
+JOIN Courses e ON e.Id = d.CourseId
+JOIN Teachers f ON d.TeacherId = f.Id
+WHERE DATEDIFF(dd, '2020-12-16', DateOfLecture) < 100
+
+SELECT CourseLanguage,Count(d.AtendeeId) AS NumberOfAtendees
+FROM Courses a
+JOIN TeacherCourse b ON a.Id = b.CourseId
+JOIN Lectures c ON b.Id = c.TeacherCourseId
+JOIN LectureAtendee d ON c.Id = d.LectureId
+WHERE DATEDIFF(dd, '2020-12-16', DateOfLecture) < 100
+GROUP BY CourseLanguage
+
+SELECT CourseLanguage,
+	DifficultyLevel,
+	(SELECT CASE 
+		WHEN Age <= 17 THEN  N'Uèenik'
+		WHEN Age > 17 AND Age <= 27 THEN 'Student'
+		WHEN Age > 27 AND Age <= 27 THEN 'Radnik'
+		WHEN Age > 67 THEN 'Umirovljenik'
+	END) AS AgeGroup
+FROM Courses a
+JOIN TeacherCourse b ON a.Id = b.CourseId
+JOIN Lectures c ON b.Id = c.TeacherCourseId
+JOIN LectureAtendee d ON c.Id = d.LectureId
+JOIN Atendees e ON d.AtendeeId = e.Id
+GROUP BY CourseLanguage, DifficultyLevel, AgeGroup
+ORDER BY CourseLanguage

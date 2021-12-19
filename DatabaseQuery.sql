@@ -401,7 +401,6 @@ JOIN Courses e ON e.Id = d.CourseId
 WHERE DATEDIFF(dd, '2020-12-16', DateOfLecture) < 100
 GROUP BY CourseLanguage, DifficultyLevel, AgeGroup
 	
-
 SELECT DateOfLecture, TeacherName, TeacherSurname
 FROM Teachers a
 JOIN TeacherCourse b ON a.Id = b.TeacherId
@@ -441,3 +440,82 @@ JOIN LectureAtendee d ON c.Id = d.LectureId
 JOIN Atendees e ON d.AtendeeId = e.Id
 GROUP BY CourseLanguage, DifficultyLevel, AgeGroup
 ORDER BY CourseLanguage
+
+SELECT AtendeeName
+FROM Atendees a
+JOIN LectureAtendee b ON a.Id = b.AtendeeId
+JOIN Lectures c ON b.LectureId = c.Id
+JOIN TeacherCourse d ON c.TeacherCourseId = d.Id
+JOIN Courses e ON e.Id = d.CourseId
+WHERE Count(CourseLanguage) > 2 
+	AND Age = MAX(Age)
+
+SELECT CourseLanguage
+FROM Courses a
+JOIN TeacherCourse b ON a.Id = b.CourseId
+JOIN Lectures c ON b.Id = c.TeacherCourseId
+JOIN LectureAtendee d ON c.Id = d.LectureId
+JOIN Atendees e ON d.AtendeeId = e.Id
+WHERE Age < 20
+GROUP BY CourseLanguage
+ORDER BY Count(e.Id)
+
+SELECT 
+	Id,
+	AtendeeName,
+	AtendeeSurname,
+	Age,
+	(SELECT CASE 
+		WHEN Age <= 17 THEN  N'Uèenik'
+		WHEN Age > 17 AND Age <= 27 THEN 'Student'
+		WHEN Age > 27 AND Age <= 27 THEN 'Radnik'
+		WHEN Age > 67 THEN 'Umirovljenik'
+	END) AS AgeGroup
+FROM Atendees
+
+SELECT *
+FROM Atendees
+WHERE Id IN (
+	SELECT DISTINCT e.Id
+	FROM Courses a
+	JOIN TeacherCourse b ON a.Id = b.CourseId
+	JOIN Lectures c ON b.Id = c.TeacherCourseId
+	JOIN LectureAtendee d ON c.Id = d.LectureId
+	JOIN Atendees e ON d.AtendeeId = e.Id
+	WHERE CourseLanguage = 'Korean'
+	)
+
+SELECT *
+FROM Atendees
+WHERE Id IN (
+	SELECT DISTINCT e.Id
+	FROM Courses a
+	JOIN TeacherCourse b ON a.Id = b.CourseId
+	JOIN Lectures c ON b.Id = c.TeacherCourseId
+	JOIN LectureAtendee d ON c.Id = d.LectureId
+	JOIN Atendees e ON d.AtendeeId = e.Id
+	JOIN Classrooms f ON a.ClassroomId = f.Id
+	WHERE RoomNumber = 432
+	)
+
+SELECT Id,AtendeeName,AtendeeSurname
+FROM Atendees
+WHERE Id IN (
+	SELECT DISTINCT e.Id
+	FROM Courses a
+	JOIN TeacherCourse b ON a.Id = b.CourseId
+	JOIN Lectures c ON b.Id = c.TeacherCourseId
+	JOIN LectureAtendee d ON c.Id = d.LectureId
+	JOIN Atendees e ON d.AtendeeId = e.Id
+	WHERE CourseLanguage = 'Korean'
+	)
+UNION 
+SELECT *
+FROM Teachers
+WHERE Id IN (
+	SELECT DISTINCT c.Id
+	FROM Courses a
+	JOIN TeacherCourse b ON a.Id = b.CourseId
+	JOIN Teachers c ON b.TeacherId = c.Id
+	WHERE CourseLanguage = 'Korean'
+	)
